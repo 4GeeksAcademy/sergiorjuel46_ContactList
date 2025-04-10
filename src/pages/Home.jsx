@@ -67,7 +67,7 @@ const ContactCard = ({ contact, onDelete }) => {
           alt="profile"
         />
         <div>
-          <h5 className="mb-1">{contact.full_name}</h5>
+          <h5 className="mb-1">{contact.name}</h5>
           <p className="mb-1">
             <i className="fas fa-map-marker-alt me-2"></i> {contact.address}
           </p>

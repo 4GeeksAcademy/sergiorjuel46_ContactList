@@ -10,14 +10,12 @@ export const AddContact = () => {
   const { store, dispatch } = useGlobalReducer();
 
   const [contact, setContact] = useState({
-    full_name: "",
-    email: "",
+    name: "",
     phone: "",
+    email: "",
     address: "",
     agenda_slug: "sergio", 
   });
-
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -55,6 +53,7 @@ export const AddContact = () => {
           headers: { "Content-Type": "application/json" },
         });
         const newContact = await res.json();
+        console.log("Nuevo contacto a agregar:", newContact);
         dispatch({ type: "ADD_CONTACT", payload: newContact });
       }
 
@@ -75,8 +74,8 @@ export const AddContact = () => {
           <input
             type="text"
             className="form-control"
-            name="full_name"
-            value={contact.full_name}
+            name="name"
+            value={contact.name}
             onChange={handleChange}
             required
           />
