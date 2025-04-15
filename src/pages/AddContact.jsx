@@ -116,8 +116,8 @@ export const AddContact = () => {
         <button type="submit" className="btn btn-primary me-2">
           {id ? "Actualizar" : "Agregar"}
         </button>
-        <Link to="/" className="btn btn-secondary">
-          Cancelar
+        <Link to="/" className="">
+          or get back to contacts
         </Link>
       </form>
     </div>
