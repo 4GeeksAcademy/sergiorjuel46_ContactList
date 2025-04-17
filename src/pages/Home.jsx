@@ -7,16 +7,30 @@ const API_URL = "https://playground.4geeks.com/contact/agendas/sergio/contacts";
 export const Home = () => {
   const { store, dispatch } = useGlobalReducer();
 
-  useEffect(() => {
-    const fetchContacts = async () => {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        dispatch({ type: "SET_CONTACTS", payload: data.contacts });
-      } catch (error) {
-        console.error("Error fetching contacts:", error);
+useEffect(() => {
+  const fetchContacts = async () => {
+    try {
+      const res = await fetch(API_URL);
+
+      if (!res.ok) {
+        // Si la agenda no existe, la creamos
+        if (res.status === 404) {
+          await fetch("https://playground.4geeks.com/contact/agendas/sergio", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+          });
+          dispatch({ type: "SET_CONTACTS", payload: [] });
+          return;
+        }
+        throw new Error("Error al obtener contactos");
       }
-    };
+
+      const data = await res.json();
+      dispatch({ type: "SET_CONTACTS", payload: data.contacts });
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    }
+  };
 
     fetchContacts();
   }, [dispatch]);

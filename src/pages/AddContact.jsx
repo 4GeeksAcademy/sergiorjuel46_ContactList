@@ -16,22 +16,61 @@ export const AddContact = () => {
     address: "",
     agenda_slug: "sergio", 
   });
+  
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setContact({ ...contact, [name]: value });
+};
 
-  useEffect(() => {
-    if (id) {
-      const existingContact = store.contacts.find(
-        (contact) => contact.id === parseInt(id)
-      );
-      if (existingContact) {
-        setContact({ ...existingContact, agenda_slug: "sergio" }); 
+
+useEffect(() => {
+  const checkOrCreateAgenda = async () => {
+    try {
+      const res = await fetch(API_URL, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) throw new Error("Agenda no encontrada");
+
+      const data = await res.json();
+      dispatch({ type: "SET_CONTACTS", payload: data });
+
+      if (id) {
+        const existingContact = data.find(
+          (contact) => contact.id === parseInt(id)
+        );
+        if (existingContact) {
+          setContact({ ...existingContact, agenda_slug: "sergio" });
+        }
+      }
+    } catch (error) {
+      console.warn("Error al obtener agenda:", error.message);
+
+      
+      try {
+        await fetch("https://playground.4geeks.com/contact/agendas", {
+          method: "POST",
+          body: JSON.stringify({ slug: "sergio" }),
+          headers: { "Content-Type": "application/json" },
+        });
+        console.log("Agenda 'sergio' creada correctamente.");
+
+        
+        const contactsRes = await fetch(API_URL, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        const contacts = await contactsRes.json();
+        dispatch({ type: "SET_CONTACTS", payload: contacts });
+      } catch (createError) {
+        console.error("No se pudo crear la agenda:", createError);
       }
     }
-  }, [id, store.contacts]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setContact({ ...contact, [name]: value });
   };
+
+  checkOrCreateAgenda();
+}, [id, dispatch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
