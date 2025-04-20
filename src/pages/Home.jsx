@@ -13,7 +13,7 @@ useEffect(() => {
       const res = await fetch(API_URL);
 
       if (!res.ok) {
-        // Si la agenda no existe, la creamos
+        
         if (res.status === 404) {
           await fetch("https://playground.4geeks.com/contact/agendas/sergio", {
             method: "POST",

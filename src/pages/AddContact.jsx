@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import useGlobalReducer from "../hooks/useGlobalReducer";
 
 const API_URL = "https://playground.4geeks.com/contact/agendas/sergio/contacts";
 
 export const AddContact = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { store, dispatch } = useGlobalReducer();
 
   const [contact, setContact] = useState({
@@ -24,52 +25,26 @@ const handleChange = (e) => {
 
 
 useEffect(() => {
-  const checkOrCreateAgenda = async () => {
+  const fetchContacts = async () => {
     try {
-      const res = await fetch(API_URL, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!res.ok) throw new Error("Agenda no encontrada");
-
+      const res = await fetch(API_URL);
       const data = await res.json();
-      dispatch({ type: "SET_CONTACTS", payload: data });
+      dispatch({ type: "SET_CONTACTS", payload: data.contacts || [] });
 
       if (id) {
-        const existingContact = data.find(
-          (contact) => contact.id === parseInt(id)
+        const existingContact = data.contacts.find(
+          (c) => c.id === parseInt(id)
         );
         if (existingContact) {
           setContact({ ...existingContact, agenda_slug: "sergio" });
         }
       }
     } catch (error) {
-      console.warn("Error al obtener agenda:", error.message);
-
-      
-      try {
-        await fetch("https://playground.4geeks.com/contact/agendas", {
-          method: "POST",
-          body: JSON.stringify({ slug: "sergio" }),
-          headers: { "Content-Type": "application/json" },
-        });
-        console.log("Agenda 'sergio' creada correctamente.");
-
-        
-        const contactsRes = await fetch(API_URL, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        const contacts = await contactsRes.json();
-        dispatch({ type: "SET_CONTACTS", payload: contacts });
-      } catch (createError) {
-        console.error("No se pudo crear la agenda:", createError);
-      }
+      console.error("Error fetching contacts:", error);
     }
   };
 
-  checkOrCreateAgenda();
+  fetchContacts();
 }, [id, dispatch]);
 
   const handleSubmit = async (e) => {
@@ -97,7 +72,7 @@ useEffect(() => {
       }
 
       
-      window.location.href = "/";
+      navigate("/");
     } catch (error) {
       console.error("Error saving contact:", error);
     }
